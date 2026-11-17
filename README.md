@@ -5,13 +5,13 @@
 ### 👉 [바로 쓰기](https://jjeonglee.github.io/mood-curve/)
 
 - 1~12월마다 기분 점수(1~5)를 고르거나 그래프를 눌러 점을 찍으면 곡선이 그려져요.
-- 달마다 기억에 남는 일을 한 줄씩 적고, 곡선을 보며 회고 질문 세 개에 답해요.
+- 달마다 기억에 남는 일을 한 줄씩 적고, 곡선을 보며 회고 질문 세 개에 답해요. 글이 길어지면 칸이 늘어나요.
 - 쓰는 내용은 **내 노트북 브라우저에만** 자동 저장돼요. 서버로 보내지 않아요. 같은 노트북에서 다시 열면 이어서 쓸 수 있어요.
 - 다 쓰면 **이미지로 저장**을 눌러 PNG 한 장으로 받아 두세요. 브라우저 기록을 지우면 저장된 내용도 사라져요.
 
 ## 파일
 
-- `index.html` : 워크시트 페이지 전체
+- `index.html` : 워크시트 페이지 전체. 제목·서명 줄은 나눔명조 일부 글자판(`nm-*.woff2`, SIL OFL 1.1)을 써요. 라이선스는 `OFL-NanumMyeongjo.txt`
 - `html2canvas.min.js` : 이미지 저장 도구 (html2canvas 1.4.1, MIT). 라이선스는 `LICENSE-html2canvas.txt`
 - `fonts.css`, `sck-sans-*.woff2` : 본문 글꼴 (IBM Plex Sans KR 부분 글꼴, SIL OFL 1.1). 라이선스는 `OFL-IBM-Plex-Sans-KR.txt`
 

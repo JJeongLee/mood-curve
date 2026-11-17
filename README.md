@@ -12,7 +12,7 @@
 ## 파일
 
 - `index.html` : 워크시트 페이지 전체
-- `lib/html2canvas.min.js` : 이미지 저장 도구 (html2canvas 1.4.1, MIT). 라이선스는 `lib/LICENSE-html2canvas.txt`
-- `fonts/` : 본문 글꼴 (IBM Plex Sans KR 부분 글꼴, SIL OFL 1.1). 라이선스는 `fonts/OFL-IBM-Plex-Sans-KR.txt`
+- `html2canvas.min.js` : 이미지 저장 도구 (html2canvas 1.4.1, MIT). 라이선스는 `LICENSE-html2canvas.txt`
+- `fonts.css`, `sck-sans-*.woff2` : 본문 글꼴 (IBM Plex Sans KR 부분 글꼴, SIL OFL 1.1). 라이선스는 `OFL-IBM-Plex-Sans-KR.txt`
 
 외부 서버에서 아무것도 불러오지 않아요.

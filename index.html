@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 나의 기분 곡선 · 모각회</title>
+<meta name="description" content="1~12월 기분 점수와 기억에 남는 일을 적고, 1년의 기분 곡선을 그려 보는 워크시트예요.">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{
+  --bg:#faf9f6; --paper:#ffffff; --ink:#2c2b29; --ink-strong:#1a1a1a; --muted:#68635c; --faint:#928e88;
+  --line:#dfdad1; --line-soft:#eeeae2; --head:#f3efe8; --accent:#8d5b4c; --accent-soft:#f4e9e3; --brown:#826c59;
+  --serif:'AppleMyungjo','Nanum Myeongjo','NanumMyeongjo','Batang','Noto Serif KR',serif;
+  --sans:'SelfCheck Sans KR','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:1360px;margin:0 auto;padding:28px 32px 96px}
+
+/* 시트 */
+.sheet{background:var(--bg);padding:4px 2px}
+.header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1.5px solid var(--ink);padding-bottom:12px;margin-bottom:20px}
+.meta-track{font-size:13px;font-weight:600;color:var(--brown);letter-spacing:.2px;margin-bottom:2px}
+h1{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--ink-strong);margin:0;letter-spacing:-.5px}
+.guide{font-size:14px;color:var(--muted);margin-top:4px}
+.name-field{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:15px;color:#4a4742;white-space:nowrap}
+.name-field input{border:none;border-bottom:1.5px solid var(--ink);background:transparent;width:180px;padding:4px 2px;font-family:var(--sans);font-size:16px;outline:none}
+.name-field input:focus{border-bottom-color:var(--accent)}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:0}
+.col-left{padding-right:28px;border-right:1px solid #e2ddd5}
+.col-right{padding-left:28px}
+
+.block-title{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--ink-strong);padding-bottom:6px;margin-bottom:10px;border-bottom:1px solid var(--ink);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.block-title .sub{font-family:var(--sans);font-size:13px;font-weight:400;color:#7a766f}
+
+/* 그래프 */
+.chart{background:var(--paper);border:1px solid var(--line);padding:10px 12px 6px;margin-bottom:22px;position:relative}
+.chart svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none;touch-action:none}
+.chart .hit{cursor:pointer}
+.chart-tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12.5px;padding:5px 9px;border-radius:4px;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}
+.chart-tip.on{opacity:1}
+
+/* 월별 기록 */
+.months{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ink);border-bottom:1.5px solid var(--ink);background:var(--paper)}
+.months .half + .half{border-left:1px solid var(--line-soft)}
+.mrow{display:grid;grid-template-columns:48px 132px minmax(0,1fr);align-items:center;border-bottom:1px solid var(--line-soft);min-height:50px}
+.mrow:last-child{border-bottom:none}
+.mrow.head{background:var(--head);min-height:34px;font-size:13px;font-weight:600;border-bottom:1px solid var(--line)}
+.mrow.head > div{text-align:center}
+.mrow.head > div:last-child{text-align:left;padding-left:10px}
+.mrow.active{background:#fffaf5}
+.mname{text-align:center;font-weight:600;font-size:14px;background:#faf7f2;align-self:stretch;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line-soft)}
+.scores{display:flex;gap:4px;justify-content:center;padding:0 6px;border-right:1px solid var(--line-soft);align-self:stretch;align-items:center}
+.scores button{width:22px;height:22px;border-radius:50%;border:1px solid #d6cfc4;background:#fff;font-size:12px;line-height:1;cursor:pointer;padding:0;color:#6d6860;transition:all .1s}
+.scores button:hover{border-color:var(--accent);color:var(--accent)}
+.scores button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.scores button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.mrow input.event{border:none;background:transparent;width:100%;padding:8px 10px;font-size:14px;outline:none}
+.mrow input.event::placeholder{color:#c2bcb2}
+.mrow input.event:focus{background:#fffaf5}
+
+/* 회고 질문 */
+.q{margin-bottom:22px}
+.q-label{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink-strong);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.q-hint{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:1px 8px;border-radius:10px}
+.q-hint:empty{display:none}
+.q-desc{font-size:13px;color:var(--muted);margin:2px 0 8px}
+textarea.lined{width:100%;border:none;outline:none;resize:vertical;background-color:transparent;
+  background-image:linear-gradient(to bottom,transparent 31px,#e5e0d7 31px,#e5e0d7 32px);background-size:100% 32px;background-attachment:local;
+  line-height:32px;font-size:15px;padding:0 2px;min-height:192px}
+textarea.lined:focus{background-image:linear-gradient(to bottom,transparent 31px,#d8c6bb 31px,#d8c6bb 32px)}
+.naming{background:var(--paper);border:1px solid #ded8ce;padding:18px 20px 20px;text-align:center}
+.naming .quote{font-family:var(--serif);font-size:22px;color:#8c7866;display:flex;align-items:flex-end;gap:10px;justify-content:center}
+.naming input{flex:1;max-width:88%;border:none;border-bottom:1.5px solid var(--ink);background:transparent;text-align:center;font-family:var(--serif);font-size:20px;padding:6px 4px;outline:none;color:var(--ink-strong)}
+.naming input:focus{border-bottom-color:var(--accent)}
+.sheet-foot{text-align:right;font-family:var(--serif);font-size:12px;color:var(--faint);margin-top:14px}
+
+/* 하단 도구 막대 */
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(250,249,246,.94);backdrop-filter:blur(6px);border-top:1px solid var(--line);z-index:10}
+.bar-in{max-width:1360px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;gap:12px}
+.status{font-size:13px;color:var(--muted);margin-right:auto;display:flex;align-items:center;gap:8px}
+.status .dot{width:7px;height:7px;border-radius:50%;background:#7aa77a}
+.btn{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:6px;font-size:14px;cursor:pointer}
+.btn:hover{border-color:#bfb7aa}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:hover{background:#000}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.confirm{display:none;align-items:center;gap:8px;font-size:13.5px}
+.confirm.on{display:flex}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:6px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:11}
+.toast.on{opacity:1}
+
+/* 이미지 저장용: 입력칸을 글자로 바꿔 찍어요 */
+.capture .as-text{white-space:pre-wrap;word-break:break-word}
+.capture .bar,.capture .chart-tip{display:none}
+
+@media (max-width:980px){
+  .wrap{padding:20px 18px 110px}
+  .cols{grid-template-columns:1fr}
+  .col-left{padding-right:0;border-right:none}
+  .col-right{padding-left:0;margin-top:26px}
+  .header{flex-direction:column;align-items:flex-start}
+}
+@media (max-width:640px){
+  .months{grid-template-columns:1fr}
+  .months .half + .half{border-left:none;border-top:1px solid var(--line-soft)}
+  .months .half + .half .mrow.head{display:none}
+  .bar-in{flex-wrap:wrap;padding:10px 18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="sheet" id="sheet">
+    <header class="header">
+      <div>
+        <div class="meta-track">몰입 1 · 타임라인</div>
+        <h1>2026 나의 기분 곡선</h1>
+        <div class="guide">사진첩과 캘린더를 1월부터 넘겨보며 점수(1~5)와 기억에 남는 일을 적어 보세요. 점수를 고르면 곡선이 저절로 그려져요.</div>
+      </div>
+      <label class="name-field">이름 <input id="name" type="text" maxlength="20" autocomplete="off" data-key="name"></label>
+    </header>
+
+    <div class="cols">
+      <section class="col-left">
+        <div class="block-title">기분 곡선 그래프 <span class="sub">그래프를 눌러 점을 찍거나, 아래 표에서 점수를 골라요.</span></div>
+        <div class="chart" id="chart">
+          <svg id="svg" viewBox="0 0 720 270" role="img" aria-label="1월부터 12월까지의 기분 곡선"></svg>
+          <div class="chart-tip" id="tip"></div>
+        </div>
+
+        <div class="block-title">월별 기록 <span class="sub">점수(1~5)를 고르고 기억에 남는 일을 한 줄로 적어요.</span></div>
+        <div class="months" id="months"></div>
+      </section>
+
+      <section class="col-right">
+        <div class="block-title">회고 질문 <span class="sub">완성된 곡선을 바라보며 생각을 적어요.</span></div>
+
+        <div class="q">
+          <div class="q-label">1. 가장 높았던 달 <span class="q-hint" id="hint-high"></span></div>
+          <div class="q-desc">그때 무엇이 나를 끌어올렸나요? (성취, 사람, 온전한 쉼 등)</div>
+          <textarea class="lined" rows="6" data-key="q1" aria-label="가장 높았던 달"></textarea>
+        </div>
+
+        <div class="q">
+          <div class="q-label">2. 가장 낮았던 달 <span class="q-hint" id="hint-low"></span></div>
+          <div class="q-desc">그 시기를 어떻게 지나왔나요? (버텨낸 힘, 도움을 준 사람, 루틴 등)</div>
+          <textarea class="lined" rows="6" data-key="q2" aria-label="가장 낮았던 달"></textarea>
+        </div>
+
+        <div class="q">
+          <div class="q-label">3. 곡선에 이름 붙이기</div>
+          <div class="q-desc">올해의 기분 곡선 전체를 한 단어 또는 한 문장으로 정의해 보세요.</div>
+          <div class="naming"><div class="quote">“<input type="text" maxlength="60" data-key="q3" aria-label="곡선에 붙일 이름">”</div></div>
+        </div>
+      </section>
+    </div>
+    <div class="sheet-foot">2026 셀프 연말정산 · 모각회</div>
+  </main>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="status" id="status"><span class="dot"></span><span id="status-text">쓰는 내용은 이 노트북 브라우저에만 저장돼요.</span></div>
+    <div class="confirm" id="confirm">모두 지울까요? <button class="btn" id="reset-yes">지우기</button><button class="btn ghost" id="reset-no">취소</button></div>
+    <button class="btn ghost" id="reset">처음부터 다시</button>
+    <button class="btn primary" id="save-png">이미지로 저장</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="lib/html2canvas.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var KEY = 'mood-curve-2026';
+  var LABELS = {5:'최고',4:'좋음',3:'보통',2:'지침',1:'바닥'};
+  var state = load();
+
+  function blank(){ return {name:'', scores:Array(12).fill(null), events:Array(12).fill(''), q1:'', q2:'', q3:''}; }
+  function load(){
+    try{
+      var s = JSON.parse(localStorage.getItem(KEY));
+      if(s && Array.isArray(s.scores) && s.scores.length===12) return Object.assign(blank(), s);
+    }catch(e){}
+    return blank();
+  }
+  var saveTimer=null;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(function(){
+      try{ localStorage.setItem(KEY, JSON.stringify(state)); setStatus('저장됨 · '+timeNow()); }
+      catch(e){ setStatus('브라우저 저장이 막혀 있어요. 끝나면 꼭 이미지로 저장해 주세요.', true); }
+    },250);
+  }
+  function timeNow(){ var d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function setStatus(t,warn){ document.getElementById('status-text').textContent=t; document.querySelector('#status .dot').style.background = warn?'#c9785d':'#7aa77a'; }
+
+  /* ---------- 월별 기록 표 ---------- */
+  var monthsEl = document.getElementById('months');
+  function buildMonths(){
+    var html='';
+    for(var h=0;h<2;h++){
+      html+='<div class="half"><div class="mrow head"><div>월</div><div>점수</div><div>기억에 남는 일 한 줄</div></div>';
+      for(var i=h*6;i<h*6+6;i++){
+        html+='<div class="mrow" data-m="'+i+'"><div class="mname">'+(i+1)+'월</div><div class="scores" role="radiogroup" aria-label="'+(i+1)+'월 점수">';
+        for(var s=1;s<=5;s++) html+='<button type="button" data-m="'+i+'" data-s="'+s+'" aria-pressed="false" title="'+s+' '+LABELS[s]+'">'+s+'</button>';
+        html+='</div><input class="event" type="text" maxlength="60" data-m="'+i+'" placeholder="'+(i===0?'예) 새해 첫 러닝 10km':'')+'" aria-label="'+(i+1)+'월 기억에 남는 일"></div>';
+      }
+      html+='</div>';
+    }
+    monthsEl.innerHTML=html;
+  }
+  buildMonths();
+
+  monthsEl.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-s]'); if(!b) return;
+    var m=+b.dataset.m, s=+b.dataset.s;
+    state.scores[m] = state.scores[m]===s ? null : s;
+    render(); save();
+  });
+  monthsEl.addEventListener('input',function(e){
+    if(!e.target.matches('input.event')) return;
+    state.events[+e.target.dataset.m]=e.target.value; drawChart(); save();
+  });
+  monthsEl.addEventListener('focusin',function(e){ var r=e.target.closest('.mrow[data-m]'); highlight(r?+r.dataset.m:null); });
+  monthsEl.addEventListener('focusout',function(){ highlight(null); });
+
+  /* ---------- 다른 입력칸 ---------- */
+  document.querySelectorAll('[data-key]').forEach(function(el){
+    el.value = state[el.dataset.key] || '';
+    el.addEventListener('input',function(){ state[el.dataset.key]=el.value; save(); });
+  });
+
+  /* ---------- 그래프 ---------- */
+  var svg=document.getElementById('svg'), tip=document.getElementById('tip'), chartEl=document.getElementById('chart');
+  var W=720,H=270, L=64, R=704, T=22, B=226;
+  function x(m){ return L+26 + m*((R-L-52)/11); }
+  function y(s){ return B - (s-1)*((B-T)/4); }
+  var activeMonth=null, hover=null;
+
+  function esc(t){ return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  function smoothPath(pts){
+    if(pts.length<2) return '';
+    var d='M'+pts[0][0]+','+pts[0][1];
+    for(var i=0;i<pts.length-1;i++){
+      var p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2, k=0.18;
+      var c1x=p1[0]+(p2[0]-p0[0])*k, c1y=p1[1]+(p2[1]-p0[1])*k;
+      var c2x=p2[0]-(p3[0]-p1[0])*k, c2y=p2[1]-(p3[1]-p1[1])*k;
+      c1y=Math.max(T,Math.min(B,c1y)); c2y=Math.max(T,Math.min(B,c2y));
+      d+=' C'+c1x.toFixed(1)+','+c1y.toFixed(1)+' '+c2x.toFixed(1)+','+c2y.toFixed(1)+' '+p2[0]+','+p2[1];
+    }
+    return d;
+  }
+
+  function drawChart(){
+    var g='';
+    // 가로 기준선
+    for(var s=5;s>=1;s--){
+      var yy=y(s), mid=s===3;
+      g+='<line x1="'+L+'" y1="'+yy+'" x2="'+R+'" y2="'+yy+'" stroke="'+(mid?'#ded7cc':'#f0ebe2')+'" stroke-width="'+(mid?1.3:1)+'"'+((s===4||s===2)?' stroke-dasharray="3,3"':'')+'/>';
+      g+='<text x="'+(L-10)+'" y="'+(yy+4.5)+'" font-size="13" text-anchor="end" font-family="AppleMyungjo, Nanum Myeongjo, Batang, serif" fill="'+(s===5?'#8d5b4c':mid?'#44413c':'#8a857d')+'"'+(mid?' font-weight="600"':'')+'>'+s+' '+LABELS[s]+'</text>';
+    }
+    // 월 세로선, 눈금 점
+    for(var m=0;m<12;m++){
+      var xx=x(m), on=(m===activeMonth||m===hover);
+      g+='<line x1="'+xx+'" y1="'+(T-6)+'" x2="'+xx+'" y2="'+(B+3)+'" stroke="'+(on?'#e6d6cc':'#f3efe8')+'" stroke-width="'+(on?2:1)+'" stroke-dasharray="'+(on?'':'3,3')+'"/>';
+      g+='<text x="'+xx+'" y="'+(B+26)+'" font-size="13" text-anchor="middle" fill="'+(on?'#8d5b4c':'#333')+'"'+(on?' font-weight="600"':'')+'>'+(m+1)+'월</text>';
+      for(var s2=1;s2<=5;s2++) g+='<circle cx="'+xx+'" cy="'+y(s2)+'" r="2" fill="'+(s2===3?'#b5ad9f':'#dcd5c9')+'"/>';
+    }
+    // 곡선
+    var pts=[]; state.scores.forEach(function(v,i){ if(v) pts.push([x(i),y(v),i,v]); });
+    if(pts.length>1){
+      var area=smoothPath(pts)+' L'+pts[pts.length-1][0]+','+B+' L'+pts[0][0]+','+B+' Z';
+      g+='<path d="'+area+'" fill="#8d5b4c" fill-opacity="0.07"/>';
+      g+='<path d="'+smoothPath(pts)+'" fill="none" stroke="#8d5b4c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>';
+    }
+    // 고/저 표시
+    var vals=state.scores.filter(Boolean), hi=vals.length?Math.max.apply(null,vals):null, lo=vals.length?Math.min.apply(null,vals):null;
+    pts.forEach(function(p){
+      var isHi = vals.length>1 && hi!==lo && p[3]===hi, isLo = vals.length>1 && hi!==lo && p[3]===lo;
+      g+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(p[2]===activeMonth?7.5:6)+'" fill="'+(isHi?'#8d5b4c':isLo?'#fff':'#fff')+'" stroke="#8d5b4c" stroke-width="2.4"/>';
+      if(isLo) g+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.2" fill="#8d5b4c"/>';
+    });
+    // 미리보기 점
+    if(hover && hover.s && state.scores[hover.m]!==hover.s){
+      g+='<circle cx="'+x(hover.m)+'" cy="'+y(hover.s)+'" r="6" fill="#8d5b4c" fill-opacity="0.25" stroke="#8d5b4c" stroke-opacity="0.5" stroke-width="1.5" pointer-events="none"/>';
+    }
+    // 눌러서 찍는 영역
+    var colW=(R-L-52)/11;
+    for(var m2=0;m2<12;m2++) g+='<rect class="hit" data-m="'+m2+'" x="'+(x(m2)-colW/2)+'" y="'+(T-14)+'" width="'+colW+'" height="'+(B-T+28)+'" fill="transparent"/>';
+    if(!pts.length) g+='<text x="'+((L+R)/2)+'" y="'+(y(3)-14)+'" font-size="14" text-anchor="middle" fill="#b4ab9e" pointer-events="none">달마다 그때 기분 높이를 눌러 보세요</text>';
+    svg.innerHTML=g;
+  }
+
+  function svgPoint(evt){
+    var r=svg.getBoundingClientRect();
+    return {x:(evt.clientX-r.left)*W/r.width, y:(evt.clientY-r.top)*H/r.height};
+  }
+  function hitFromEvent(evt){
+    var p=svgPoint(evt), colW=(R-L-52)/11;
+    var m=Math.round((p.x-(L+26))/colW); if(m<0||m>11) return null;
+    if(p.y<T-16||p.y>B+16) return {m:m,s:null};
+    var s=Math.round(1+(B-p.y)/((B-T)/4)); s=Math.max(1,Math.min(5,s));
+    return {m:m,s:s};
+  }
+  var dragging=false, dragMoved=false, downHit=null;
+  svg.addEventListener('pointerdown',function(e){
+    var h=hitFromEvent(e); if(!h||!h.s) return;
+    dragging=true; dragMoved=false; downHit=h; svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener('pointermove',function(e){
+    var h=hitFromEvent(e);
+    if(dragging && h && h.s){
+      if(h.m!==downHit.m || h.s!==downHit.s) dragMoved=true;
+      if(dragMoved && state.scores[h.m]!==h.s){ state.scores[h.m]=h.s; render(); save(); }
+    }
+    hover=h; drawChart(); showTip(h,e);
+  });
+  svg.addEventListener('pointerup',function(e){
+    if(!dragging) return; dragging=false;
+    if(!dragMoved && downHit){
+      var m=downHit.m, s=downHit.s;
+      state.scores[m] = state.scores[m]===s ? null : s;  // 같은 점을 다시 누르면 지워요
+      render(); save();
+    }
+    downHit=null;
+  });
+  svg.addEventListener('pointerleave',function(){ if(!dragging){ hover=null; drawChart(); tip.classList.remove('on'); } });
+
+  function showTip(h,e){
+    if(!h){ tip.classList.remove('on'); return; }
+    var ev=state.events[h.m], sc=state.scores[h.m];
+    var t=(h.m+1)+'월 · '+(sc? sc+'점 '+LABELS[sc] : '아직 비어 있어요')+(ev?' · '+ev:'');
+    tip.textContent=t;
+    var cr=chartEl.getBoundingClientRect(), sr=svg.getBoundingClientRect();
+    tip.style.left=(sr.left-cr.left + x(h.m)*sr.width/W)+'px';
+    tip.style.top=(sr.top-cr.top + (sc?y(sc):T)*sr.height/H - 12)+'px';
+    tip.classList.add('on');
+  }
+
+  function highlight(m){
+    activeMonth=m;
+    document.querySelectorAll('.mrow[data-m]').forEach(function(r){ r.classList.toggle('active', +r.dataset.m===m); });
+    drawChart();
+  }
+
+  /* ---------- 높은 달/낮은 달 안내 ---------- */
+  function hints(){
+    var v=state.scores, f=v.filter(Boolean);
+    var hi=document.getElementById('hint-high'), lo=document.getElementById('hint-low');
+    if(f.length<2 || Math.max.apply(null,f)===Math.min.apply(null,f)){ hi.textContent=''; lo.textContent=''; return; }
+    var mx=Math.max.apply(null,f), mn=Math.min.apply(null,f);
+    function months(t){ var a=[]; v.forEach(function(s,i){ if(s===t) a.push((i+1)+'월'); }); return a.join('·'); }
+    hi.textContent=months(mx)+' ('+mx+'점)';
+    lo.textContent=months(mn)+' ('+mn+'점)';
+  }
+
+  function render(){
+    document.querySelectorAll('.scores button').forEach(function(b){
+      b.setAttribute('aria-pressed', state.scores[+b.dataset.m]===+b.dataset.s ? 'true':'false');
+    });
+    drawChart(); hints();
+  }
+  document.querySelectorAll('input.event').forEach(function(el){ el.value=state.events[+el.dataset.m]||''; });
+  render();
+
+  /* ---------- 처음부터 다시 ---------- */
+  var confirmEl=document.getElementById('confirm'), resetBtn=document.getElementById('reset');
+  resetBtn.addEventListener('click',function(){ confirmEl.classList.add('on'); resetBtn.style.display='none'; });
+  document.getElementById('reset-no').addEventListener('click',closeConfirm);
+  document.getElementById('reset-yes').addEventListener('click',function(){
+    state=blank();
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    document.querySelectorAll('[data-key]').forEach(function(el){ el.value=''; });
+    document.querySelectorAll('input.event').forEach(function(el){ el.value=''; });
+    render(); closeConfirm(); setStatus('모두 지웠어요.'); toast('모두 지웠어요');
+  });
+  function closeConfirm(){ confirmEl.classList.remove('on'); resetBtn.style.display=''; }
+
+  /* ---------- 이미지로 저장 ---------- */
+  function toast(t){ var el=document.getElementById('toast'); el.textContent=t; el.classList.add('on'); setTimeout(function(){ el.classList.remove('on'); },2200); }
+  document.getElementById('save-png').addEventListener('click',function(){
+    var btn=this;
+    if(typeof html2canvas!=='function'){ toast('이미지 도구를 불러오지 못했어요. 화면을 캡처해 주세요.'); return; }
+    btn.disabled=true; btn.textContent='만드는 중…';
+    activeMonth=null; hover=null; drawChart(); highlight(null);
+    var sheet=document.getElementById('sheet');
+    html2canvas(sheet,{
+      scale:2, backgroundColor:'#faf9f6', windowWidth:1360,
+      onclone:function(doc){
+        var s=doc.getElementById('sheet'); s.classList.add('capture'); s.style.width='1296px'; s.style.padding='28px 32px';
+        // 입력칸을 같은 모양의 글자 상자로 바꿔야 줄바꿈이 그대로 찍혀요
+        s.querySelectorAll('textarea, input[type="text"]').forEach(function(el){
+          var src=document.querySelector(el.dataset.key?'[data-key="'+el.dataset.key+'"]':'input.event[data-m="'+el.dataset.m+'"]');
+          var d=doc.createElement('div'); d.className=el.className+' as-text'; d.textContent=src?src.value:el.value;
+          var cs=getComputedStyle(src||el);
+          ['fontSize','fontFamily','lineHeight','padding','textAlign','color','borderBottom','backgroundImage','backgroundSize','maxWidth','flex'].forEach(function(p){ d.style[p]=cs[p]; });
+          if(el.tagName==='TEXTAREA'){ d.style.width='100%'; d.style.minHeight='192px'; d.style.height='auto'; }
+          if(el.dataset.key==='name') d.style.width='180px';
+          if(el.matches('input.event')){ d.style.padding='8px 10px'; d.style.minHeight='20px'; }
+          if(!d.textContent && el.matches('input.event')) d.innerHTML='&nbsp;';
+          el.parentNode.replaceChild(d,el);
+        });
+      }
+    }).then(function(canvas){
+      var who=(state.name||'').trim().replace(/[\\/:*?"<>|\s]+/g,'_');
+      return new Promise(function(res){ canvas.toBlob(res,'image/png'); }).then(function(blob){
+        var url=URL.createObjectURL(blob), a=document.createElement('a');
+        a.download='mood-curve-2026'+(/^[\w-]+$/.test(who)?'_'+who:'')+'.png'; a.href=url;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); },4000);
+        toast('이미지를 저장했어요');
+      });
+    }).catch(function(){ toast('이미지를 만들지 못했어요. 화면을 캡처해 주세요.'); })
+      .finally(function(){ btn.disabled=false; btn.textContent='이미지로 저장'; });
+  });
+})();
+</script>
+</body>
+</html>

@@ -4,9 +4,9 @@
 
 | 자료 | 언제 쓰나요 | 링크 |
 |---|---|---|
-| ① 2026 나의 기분 곡선 | 몰입1 · 1~12월 기분 곡선과 월별 기록 | [바로 쓰기](https://jjeonglee.github.io/mood-curve/) |
-| ② 회고 템플릿 | 몰입2 · 템플릿 5종 중 하나 + 마무리 2027 예산안 | [바로 쓰기](https://jjeonglee.github.io/mood-curve/templates.html) |
-| ③ 회고 질문 카드 | 쓰다가 막힐 때 한 장씩 뽑는 질문 30장 | [바로 보기](https://jjeonglee.github.io/mood-curve/cards.html) |
+| ① 2026 나의 기분 곡선 | 몰입1 · 1~12월 기분 곡선과 월별 기록 | [바로 쓰기](https://jjeonglee.github.io/self-retro/) |
+| ② 회고 템플릿 | 몰입2 · 템플릿 5종 중 하나 + 마무리 2027 예산안 | [바로 쓰기](https://jjeonglee.github.io/self-retro/templates.html) |
+| ③ 회고 질문 카드 | 쓰다가 막힐 때 한 장씩 뽑는 질문 30장 | [바로 보기](https://jjeonglee.github.io/self-retro/cards.html) |
 
 ## ① 2026 나의 기분 곡선
 
